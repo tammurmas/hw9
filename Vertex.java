@@ -17,6 +17,7 @@ public class Vertex {
     private String color;
     private int startTime;
     private int endTime;
+    private Vertex parent;
     
     public Vertex(String id)
     {
@@ -65,5 +66,15 @@ public class Vertex {
     public int getEndTime()
     {
         return this.endTime;
+    }
+    
+    public void setParent(Vertex parent)
+    {
+        this.parent = parent;
+    }
+    
+    public Vertex getParent()
+    {
+        return this.parent;
     }
 }
