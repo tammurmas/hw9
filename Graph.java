@@ -20,6 +20,7 @@ public class Graph {
     
     private TreeMap<String, Vertex> vertices;
     private ArrayList<String> edges;
+    //private static String fileName = "edges_undir.txt";
     private static String fileName = "edges.txt";
     private static String rootId = "A";
     
@@ -94,6 +95,8 @@ public class Graph {
         
         //graph.DFS();
         
+        graph.stack();
+        
         //graph.DFSStack();
         
         /*System.out.print("BFS FIFO: ");
@@ -104,7 +107,7 @@ public class Graph {
         graph.BFSLIFO();
         System.out.println();*/
         
-        graph.BFSearch("C");
+        //graph.BFSearch("E");
         
         
         
@@ -164,6 +167,78 @@ public class Graph {
         
     }
     
+    public void stack()
+    {
+        this.colorWhite();
+        
+        Stack stack = new Stack();
+        Vertex root = this.vertices.get(rootId);
+        
+        stack.push(root);
+        
+        root.setColor("gray");
+        
+        System.out.println(root.getId());
+        
+        while (stack.isEmpty() == false)
+        {
+            Vertex v = (Vertex)stack.peek();
+            
+            
+            if(v.getAdjList() != null)
+            {
+                
+                Object[] keys = v.getAdjList().keySet().toArray();
+                boolean whites = false;
+                
+                for(int i=0; i<keys.length; i++){
+                    Vertex adj = v.getAdjList().get((String)keys[i]);
+
+                    
+                    
+                    if("white".equals(adj.getColor()))
+                    {
+                        whites = true;
+                        adj.setColor("gray");   
+                        stack.push(adj);
+                        System.out.println(adj.getId());
+                        break;
+                        
+                    }       
+                }
+                if(whites == false)
+                    stack.pop();
+                    
+            }
+            else
+            {
+                stack.pop();
+            }
+                
+        }
+        
+        
+    }
+    
+    public static ArrayList<Vertex> getUnivisited(Vertex v)
+    {
+        ArrayList<Vertex> nodes = new ArrayList<Vertex>();
+        Object[] keys = v.getAdjList().keySet().toArray();
+        
+        //because we have a stack we push the adjacents in reverse order
+        for(int i=0; i<keys.length; i++){
+            Vertex adj = v.getAdjList().get((String)keys[i]);
+            
+            if("white".equals(adj.getColor()))
+            {
+                nodes.add(adj);
+                adj.setColor("gray");   
+            }       
+        }
+        
+        return nodes;
+    }
+    
     /**
      * DFS using a stack
      * HINT: http://www.codeproject.com/Articles/32212/Introduction-to-Graph-with-Breadth-First-Search-BF
@@ -177,7 +252,6 @@ public class Graph {
         
         stack.push(root);
         
-        root.setStartTime(time);
         root.setColor("gray");
         
         while (stack.isEmpty() == false)
