@@ -21,6 +21,8 @@ public class Graph {
     private TreeMap<String, Vertex> vertices;
     private ArrayList<String> edges;
     private static String fileName = "edges.txt";
+    private static String rootId = "A";
+    
     
     private int time;
     
@@ -102,7 +104,7 @@ public class Graph {
         graph.BFSLIFO();
         System.out.println();*/
         
-        graph.BFSearch("H");
+        graph.BFSearch("C");
         
         
         
@@ -171,7 +173,7 @@ public class Graph {
         this.colorWhite();
         
         Stack stack = new Stack();
-        Vertex root = this.vertices.get("A");//root is "A"
+        Vertex root = this.vertices.get(rootId);
         
         stack.push(root);
         
@@ -203,66 +205,6 @@ public class Graph {
         
     }
     
-    //HINT: http://stackoverflow.com/questions/58306/graph-algorithm-to-find-all-connections-between-two-arbitrary-vertices
-    public void BFSearch(String id)
-    {
-        this.colorWhite();
-        
-        ArrayDeque queue = new ArrayDeque();
-        Vertex root      = this.vertices.get("A");//root is "A"
-        
-        queue.add(root);
-        root.setColor("gray");
-        
-        
-        while (queue.isEmpty() == false)
-        {
-            Vertex v = (Vertex)queue.poll();//pull from the head of the queue
-            
-            if(id.equals(v.getId()))
-            {
-                String path = v.getId();
-                while(root.equals(v.getParent()) == false)
-                {
-                    path = path+","+v.getParent().getId();
-                    v = v.getParent();
-                }
-                
-                path = path+","+root.getId();
-                System.out.println(new StringBuilder(path).reverse().toString());
-                //return;
-            }
-                
-            
-            if(v.getAdjList() != null)
-            {
-                Object[] keys = v.getAdjList().keySet().toArray();
-                
-                for(int i=0; i<keys.length; i++){
-                    Vertex adj = v.getAdjList().get((String)keys[i]);
-                    if("white".equals(adj.getColor()))
-                    {
-                        queue.add(adj);//add to the end of the queue
-                        adj.setColor("gray");
-                        adj.setParent(v);
-                    }       
-                }
-            }
-        }
-    }
-    
-    public String backtrack(Vertex root, Vertex v, String path)
-    {
-        
-        
-        while (root.equals(v.getParent()) == false)
-        {
-            path = path+" "+v.getParent().getId();
-            backtrack(root, v.getParent(), path);
-        }
-        
-        return path;
-    }
     
     /**
      * Pints out the BFS-traversal for the given graph using a FIFO queue
@@ -273,7 +215,7 @@ public class Graph {
         
         ArrayDeque queue = new ArrayDeque();
         
-        Vertex root = this.vertices.get("A");//root is "A"
+        Vertex root = this.vertices.get(rootId);
         
         queue.add(root);
         
@@ -307,7 +249,7 @@ public class Graph {
         
         ArrayDeque queue = new ArrayDeque();
         
-        Vertex root = this.vertices.get("A");//root is "A"
+        Vertex root = this.vertices.get(rootId);
         
         queue.add(root);
         
@@ -332,6 +274,62 @@ public class Graph {
             }
             
             System.out.print(v.getId()+", ");
+        }
+    }
+    
+    /**
+     * Prints out all possible randomized search orders starting from pre-defined root to the given vertex
+     * HINT: http://stackoverflow.com/questions/58306/graph-algorithm-to-find-all-connections-between-two-arbitrary-vertices
+     * @param id - id of the destination vertex
+     */
+    public void BFSearch(String id)
+    {
+        ArrayDeque queue = new ArrayDeque();
+        
+        Vertex root      = this.vertices.get(rootId);
+        ArrayList<Vertex> path = new ArrayList<Vertex>();
+        
+        path.add(root);
+        queue.add(path);
+        
+        while (queue.isEmpty() == false)
+        {
+            ArrayList<Vertex> p = (ArrayList<Vertex>)queue.poll();
+            Vertex last = p.get(p.size()-1);
+            
+            if(last.getAdjList() != null)//else: we have reached a dead end, discard it
+            {
+                Object[] keys = last.getAdjList().keySet().toArray();
+                
+                for(int i=0; i<keys.length; i++){
+                    Vertex adj = last.getAdjList().get((String)keys[i]);
+                    
+                    if(p.contains(adj) == false)//else: we have a cycle, discard it
+                    {
+                        //create a new path, copy predecessors into it and add the adjacent
+                        ArrayList<Vertex> new_path = new ArrayList<Vertex>();
+                        new_path.addAll(p);
+                        new_path.add(adj);
+                        
+                        //if adjacent is what we are looking for: print the path and discard it
+                        if(id.equals(adj.getId()) == true)
+                        {
+                            for(int j=0; j<new_path.size(); j++)
+                            {
+                                System.out.print(new_path.get(j).getId()+" ");
+                            }
+                            System.out.println();
+                        }
+                        //otherwise: add it to the queue of paths to investigate it further
+                        else
+                        {
+                            queue.add(new_path);
+                        }
+                        
+                    } 
+                }
+            }
+            
         }
     }
     
@@ -363,7 +361,5 @@ public class Graph {
         }
     }
 
-    private Object StringBuilder(String path) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    
 }
